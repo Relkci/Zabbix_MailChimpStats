@@ -1,5 +1,5 @@
 # Zabbix_MailChimpStats
-Zabbix MailChimp Account Status Template
+Zabbix MailChimp Account Status Template using Mailchimp API v3 and Zabbix LLD discovery
 
 # Installation
 - Import template
