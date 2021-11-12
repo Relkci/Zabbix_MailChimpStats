@@ -1,0 +1,1296 @@
+zabbix_export:
+  version: '5.4'
+  date: '2021-11-12T07:58:09Z'
+  groups:
+    -
+      uuid: c1042abaca9d435ca00326c24768d8b8
+      name: 'API Providers'
+  templates:
+    -
+      uuid: 383c56cfddb942a88a4ef4ae228484af
+      template: 'MailChimp Provider Status'
+      name: 'MailChimp Provider Status'
+      groups:
+        -
+          name: 'API Providers'
+      items:
+        -
+          uuid: 6b07d37970174603a638dabaca885305
+          name: 'Mailchimp Domains'
+          type: DEPENDENT
+          key: mailchimp.api.domains.count
+          delay: '0'
+          units: Domains
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.total_items
+          master_item:
+            key: mailchimp.api.domains.verified.data
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+          triggers:
+            -
+              uuid: e50174181aa942a4a9bc4eb24c07eecb
+              expression: 'change(/MailChimp Provider Status/mailchimp.api.domains.count)<>0'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'change(/MailChimp Provider Status/mailchimp.api.domains.count)=0'
+              name: 'Mailchimp Domains Count Changed - {ITEM.LASTVALUE1}'
+              opdata: '{ITEM.LASTVALUE1}'
+              priority: INFO
+        -
+          uuid: 4fa8c5c46dd04372946dc898138a86c7
+          name: mailchimp.api.domains.verified.data
+          type: HTTP_AGENT
+          key: mailchimp.api.domains.verified.data
+          delay: 5m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          authtype: BASIC
+          username: anystring
+          password: '{$MAILCHIMP_APIKEY}'
+          url: 'https://{$MAILCHIMP_API_SERVER}/3.0/verified-domains'
+          status_codes: ''
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Data
+        -
+          uuid: 88715c3e849948e59bb687d58c6dc7ac
+          name: 'Mailchimp Abuse Reports'
+          type: CALCULATED
+          key: mailchimp.api.lists.abuse-reports.count
+          delay: 5m
+          units: Reports
+          params: 'sum(last_foreach(//mailchimp.api.lists.stats.abuse-reports.count[*]))'
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Lists
+            -
+              tag: Mailchimp-Lists
+              value: Stats
+        -
+          uuid: 22366a50eed1463ea16a42c081c3794e
+          name: 'Mailchimp Lists'
+          type: DEPENDENT
+          key: mailchimp.api.lists.count
+          delay: '0'
+          units: Lists
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.lists.length()
+          master_item:
+            key: mailchimp.api.lists.data
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+          triggers:
+            -
+              uuid: 4dbdfce60b1f4704bb7a306522b2ef49
+              expression: 'change(/MailChimp Provider Status/mailchimp.api.lists.count)<>0'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'change(/MailChimp Provider Status/mailchimp.api.lists.count)=0'
+              name: 'Mailchimp Lists Count Changed - {ITEM.LASTVALUE1}'
+              opdata: '{ITEM.LASTVALUE1}'
+              priority: INFO
+        -
+          uuid: 022f1226c60e4dc594c60f768abfc798
+          name: mailchimp.api.lists.data
+          type: HTTP_AGENT
+          key: mailchimp.api.lists.data
+          delay: 5m
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          authtype: BASIC
+          username: anystring
+          password: '{$MAILCHIMP_APIKEY}'
+          url: 'https://{$MAILCHIMP_API_SERVER}/3.0/lists'
+          query_fields:
+            -
+              name: fields
+              value: 'lists.id,lists.name'
+            -
+              name: count
+              value: '1000'
+          status_codes: ''
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Data
+        -
+          uuid: 3f91c4bdc12d41eeb699e5c63e74144a
+          name: 'Mailchimp Lists Campaigns Emails-Sent Total'
+          type: CALCULATED
+          key: mailchimp.api.lists.stats.campaigns.emails_sent.total
+          delay: 5m
+          units: Emails
+          params: 'sum(last_foreach(//mailchimp.api.lists.stats.campaigns.emails_sent[*]))'
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Lists
+            -
+              tag: Mailchimp-Lists
+              value: Stats
+        -
+          uuid: 925075e80b844a4a8a2d5b0f5cc3791c
+          name: 'Mailchimp Lists Campaigns Total'
+          type: CALCULATED
+          key: mailchimp.api.lists.stats.campaign_count.total
+          delay: 5m
+          params: 'sum(last_foreach(//mailchimp.api.lists.stats.campaign_count[*]))'
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Lists
+            -
+              tag: Mailchimp-Lists
+              value: Stats
+        -
+          uuid: f79678c759074fdd915e08f184539ef7
+          name: 'Mailchimp Lists Cleaned Ununique Total'
+          type: CALCULATED
+          key: mailchimp.api.lists.stats.cleaned_count.total
+          delay: 5m
+          params: 'sum(last_foreach(//mailchimp.api.lists.stats.cleaned_count[*]))'
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Lists
+            -
+              tag: Mailchimp-Lists
+              value: Stats
+        -
+          uuid: 7a52e2851f37477581acb6f5bfea4502
+          name: 'Mailchimp Lists Subscribes Ununique Total'
+          type: CALCULATED
+          key: mailchimp.api.lists.stats.member_count.total
+          delay: 5m
+          params: 'sum(last_foreach(//mailchimp.api.lists.stats.member_count[*]))'
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Lists
+            -
+              tag: Mailchimp-Lists
+              value: Stats
+        -
+          uuid: efc7f797487047a299065928f969e979
+          name: 'Mailchimp Lists Unsubscribes Ununique Total'
+          type: CALCULATED
+          key: mailchimp.api.lists.stats.unsubscribe_count.total
+          delay: 5m
+          params: 'sum(last_foreach(//mailchimp.api.lists.stats.unsubscribe_count[*]))'
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+            -
+              tag: Mailchimp
+              value: Lists
+            -
+              tag: Mailchimp-Lists
+              value: Stats
+        -
+          uuid: 31e14166fd79447e9919442c56d0ea05
+          name: 'Mailchimp Account Ping Status'
+          type: DEPENDENT
+          key: mailchimp.api.svc.ping
+          delay: '0'
+          trends: '0'
+          value_type: TEXT
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.health_status
+          master_item:
+            key: mailchimp.api.svc.ping.data
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+          triggers:
+            -
+              uuid: 78c23f806df848f1a50e4f38aeaffe1d
+              expression: 'last(/MailChimp Provider Status/mailchimp.api.svc.ping)<>"Everything''s Chimpy!"'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/MailChimp Provider Status/mailchimp.api.svc.ping)="Everything''s Chimpy!"'
+              name: 'Mailchimp API Access Issue - {ITEM.LASTVALUE1}'
+              event_name: 'Mailchimp API Access Issue'
+              opdata: '{ITEM.LASTVALUE1}'
+              priority: INFO
+        -
+          uuid: 3c10bf1fd30f420c8a341fafbe9bd912
+          name: mailchimp.api.svc.ping.data
+          type: HTTP_AGENT
+          key: mailchimp.api.svc.ping.data
+          history: '0'
+          trends: '0'
+          value_type: TEXT
+          authtype: BASIC
+          username: anystring
+          password: '{$MAILCHIMP_APIKEY}'
+          url: 'https://{$MAILCHIMP_API_SERVER}/3.0/ping'
+          status_codes: ''
+          tags:
+            -
+              tag: Application
+              value: Mailchimp
+      discovery_rules:
+        -
+          uuid: 3ddf2b155bcb4e55a183b7a82133e077
+          name: mailchimp.api.domains.verified.disc
+          type: DEPENDENT
+          key: mailchimp.api.domains.verified.disc
+          delay: '0'
+          item_prototypes:
+            -
+              uuid: edf0dcf8003147b09a5f720c0f618111
+              name: 'Mailchimp Domain - {#DOMAIN_NAME} - Authenticated'
+              type: DEPENDENT
+              key: 'mailchimp.api.domains.authenticated[{#DOMAIN_NAME}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.domains.[?(@.["domain"] == ''{#DOMAIN_NAME}'')].["authenticated"].first()'
+              master_item:
+                key: mailchimp.api.domains.verified.data
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Domains
+              trigger_prototypes:
+                -
+                  uuid: 17fd50bfa0204358bd3f76e6bd13d468
+                  expression: 'last(/MailChimp Provider Status/mailchimp.api.domains.authenticated[{#DOMAIN_NAME}])="false"'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/MailChimp Provider Status/mailchimp.api.domains.authenticated[{#DOMAIN_NAME}])="true"'
+                  name: 'Mailchimp Domain {#DOMAIN_NAME} Is not authenticated'
+                  opdata: '{ITEM.LASTVALUE1}'
+                  priority: INFO
+            -
+              uuid: 08e4f86bd4264766a25b0cfb431fa0ba
+              name: 'Mailchimp Domain - {#DOMAIN_NAME} - Verification Email'
+              type: DEPENDENT
+              key: 'mailchimp.api.domains.verification-email[{#DOMAIN_NAME}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.domains.[?(@.["domain"] == ''{#DOMAIN_NAME}'')].["verification_email"].first()'
+              master_item:
+                key: mailchimp.api.domains.verified.data
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Domains
+            -
+              uuid: b975039504274ad5a45297621a359777
+              name: 'Mailchimp Domain - {#DOMAIN_NAME} - Verification Sent DTM'
+              type: DEPENDENT
+              key: 'mailchimp.api.domains.verification_sent[{#DOMAIN_NAME}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.domains.[?(@.["domain"] == ''{#DOMAIN_NAME}'')].["verification_sent"].first()'
+              master_item:
+                key: mailchimp.api.domains.verified.data
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Domains
+            -
+              uuid: abfd4e5b6e7c4f3d89273913fdbb73f7
+              name: 'Mailchimp Domain - {#DOMAIN_NAME} - Verified'
+              type: DEPENDENT
+              key: 'mailchimp.api.domains.verified[{#DOMAIN_NAME}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.domains.[?(@.["domain"] == ''{#DOMAIN_NAME}'')].["verified"].first()'
+              master_item:
+                key: mailchimp.api.domains.verified.data
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Domains
+              trigger_prototypes:
+                -
+                  uuid: e309ab5f6a234cb290a9e379139f0d6b
+                  expression: 'last(/MailChimp Provider Status/mailchimp.api.domains.verified[{#DOMAIN_NAME}])="false"'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/MailChimp Provider Status/mailchimp.api.domains.verified[{#DOMAIN_NAME}])="true"'
+                  name: 'Mailchimp Domain {#DOMAIN_NAME} Is not verified'
+                  opdata: '{ITEM.LASTVALUE1}'
+                  priority: INFO
+          master_item:
+            key: mailchimp.api.domains.verified.data
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.domains
+            -
+              type: STR_REPLACE
+              parameters:
+                - domain
+                - '{#DOMAIN_NAME}'
+        -
+          uuid: b7f4542f58bc45d0952324b8bf308c7d
+          name: mailchimp.api.lists.discovery
+          type: DEPENDENT
+          key: mailchimp.api.lists.discovery
+          delay: '0'
+          item_prototypes:
+            -
+              uuid: 287c95a5d0134112a8d6a81ee2a83c90
+              name: 'mailchimp.api.lists.abuse-reports.data[{#LIST_ID}]'
+              type: HTTP_AGENT
+              key: 'mailchimp.api.lists.abuse-reports.data[{#LIST_ID}]'
+              delay: 5m
+              history: '0'
+              trends: '0'
+              value_type: TEXT
+              authtype: BASIC
+              username: anystring
+              password: '{$MAILCHIMP_APIKEY}'
+              url: 'https://{$MAILCHIMP_API_SERVER}/3.0/lists/{#LIST_ID}/abuse-reports'
+              query_fields:
+                -
+                  name: fields
+                  value: total_items
+              tags:
+                -
+                  tag: Mailchimp
+                  value: data
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: ddec661142c74420b8062555c4de0e1f
+              name: 'mailchimp.api.lists.campaigns.data[{#LIST_ID}]'
+              type: HTTP_AGENT
+              key: 'mailchimp.api.lists.campaigns.data[{#LIST_ID}]'
+              delay: 5m
+              history: '0'
+              trends: '0'
+              value_type: TEXT
+              authtype: BASIC
+              username: anystring
+              password: '{$MAILCHIMP_APIKEY}'
+              url: 'https://{$MAILCHIMP_API_SERVER}/3.0/campaigns/'
+              query_fields:
+                -
+                  name: fields
+                  value: campaigns.emails_sent
+                -
+                  name: list_id
+                  value: '{#LIST_ID}'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: data
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 6586e0fb9ca948fd9aad4d6428460c50
+              name: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              type: HTTP_AGENT
+              key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              delay: 5m
+              history: '0'
+              trends: '0'
+              value_type: TEXT
+              authtype: BASIC
+              username: anystring
+              password: '{$MAILCHIMP_APIKEY}'
+              url: 'https://{$MAILCHIMP_API_SERVER}/3.0/lists/{#LIST_ID}'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: data
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: f49dd762579e4925a01eac7910d62d71
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Date Created'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.date_created[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The date and time that this list was created in ISO 8601 format.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.date_created
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 36d66f3b207a47bebcacefa18a4af2c9
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) ID'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.id[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.id
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: d7e114627e624367956d65160d3aaf67
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) List Rating'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.list_rating[{#LIST_ID}]'
+              delay: '0'
+              description: 'An auto-generated activity score for the list (0-5).'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.list_rating
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 06cd481a7f9a47419cefe68b43853042
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Name'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.name[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.name
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: d4dd8f8de93f4845845b97918e9be7ad
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Notify on Subscribe'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.settings.notify_on_subscribe[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The email address to send subscribe notifications to.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.notify_on_subscribe
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 942b8a3955274458a25e2fad684121ea
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Notify on Unsubscribe'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.settings.notify_on_unsubscribe[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The email address to send unsubscribe notifications to.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.notify_on_unsubscribe
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: de9b53504f5e4d23921a8fc5b4714206
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Permission Reminder'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.settings.permission_reminder[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The permission reminder for the list. -- How users attributed to list.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.permission_reminder
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 080dbdffb908498581e72ce908b66b03
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Abuse Reports'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.abuse-reports.count[{#LIST_ID}]'
+              delay: '0'
+              units: Reports
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.total_items
+              master_item:
+                key: 'mailchimp.api.lists.abuse-reports.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: SubscriberStats
+            -
+              uuid: ddc7354c694c440db271265037623113
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Average Subscribe Rate'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.avg_sub_rate[{#LIST_ID}]'
+              delay: '0'
+              description: 'The average number of subscriptions per month for the list (not returned if we haven''t calculated it yet).'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.avg_sub_rate
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: Average
+            -
+              uuid: 92432982eabd4fac9509aae14ee9749c
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Average Unsubscribe Rate'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.avg_unsub_rate[{#LIST_ID}]'
+              delay: '0'
+              description: 'The average number of unsubscriptions per month for the list (not returned if we haven''t calculated it yet).'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.avg_unsub_rate
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: Average
+            -
+              uuid: 0f721fa8d4e84dc1b5c423112f8967b2
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Campaign Emails Sent'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.campaigns.emails_sent[{#LIST_ID}]'
+              delay: '0'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - '$.campaigns[:].emails_sent.sum()'
+              master_item:
+                key: 'mailchimp.api.lists.campaigns.data[{#LIST_ID}]'
+            -
+              uuid: e5f2d4146fa043e28c80a9b45bac8b6e
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Campaign Count'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.campaign_count[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of campaigns in any status that use this list.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.campaign_count
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: Campaigns
+            -
+              uuid: 6f5c249870ea4ec692a3ae43bcd690b2
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Campaign Last Sent'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.campaign_last_sent[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The date and time the last campaign was sent to this list in ISO 8601 format. This is updated when a campaign is sent to 10 or more recipients.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.campaign_last_sent
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: Campaigns
+            -
+              uuid: 6e7991343480400ebaf8a2ff30b71bac
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Cleaned Count'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.cleaned_count[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of members cleaned from the list.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.cleaned_count
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: SubscriberStats
+            -
+              uuid: 9405dd599cc644219b4e3022e00d6e11
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Cleaned Count Since Send'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.cleaned_count_since_send[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of members cleaned from the list since the last campaign was sent.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.cleaned_count_since_send
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 8c9d43a68c5e4437840d75de30aaa237
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Click Rate'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.click_rate[{#LIST_ID}]'
+              delay: '0'
+              description: 'The average click rate (a percentage represented as a number between 0 and 100) per campaign for the list (not returned if we haven''t calculated it yet).'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.click_rate
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: Interactions
+            -
+              uuid: 888d9105f2a945bc9b41daee730758f3
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Last Subscriber Date'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.last_sub_date[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The date and time of the last time someone subscribed to this list in ISO 8601 format.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.last_sub_date
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: d679e88fb2f34896bfbb10abc285522f
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Last Unsubscriber Date'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.last_unsub_date[{#LIST_ID}]'
+              delay: '0'
+              trends: '0'
+              value_type: TEXT
+              description: 'The date and time of the last time someone unsubscribed from this list in ISO 8601 format.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.last_unsub_date
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 1fc12b86bec04bb9b2eb52f97a7c2615
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Member Count'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.member_count[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of active members in the list.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.member_count
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: SubscriberStats
+            -
+              uuid: f38bb05ace2544cfa5aff56ec4991d6e
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Member Count Since Send'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.member_count_since_send[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of active members in the list since the last campaign was sent.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.member_count_since_send
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: e7ca068bc6e249c7a1c50a4aa1fbe157
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Open Rate'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.open_rate[{#LIST_ID}]'
+              delay: '0'
+              description: 'The average open rate (a percentage represented as a number between 0 and 100) per campaign for the list (not returned if we haven''t calculated it yet).'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.open_rate
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: Interactions
+            -
+              uuid: c5cf1a7fed364db2a92f8ed842c63db7
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Target Subscribe Rate'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.target_sub_rate[{#LIST_ID}]'
+              delay: '0'
+              description: 'The target number of subscriptions per month for the list to keep it growing (not returned if we haven''t calculated it yet).'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.target_sub_rate
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: d0b2756be91f41fe8af64d37e53129da
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Unsubscribe Count'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.unsubscribe_count[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of members who have unsubscribed from the list.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.unsubscribe_count
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+                -
+                  tag: Mailchimp-Lists
+                  value: SubscriberStats
+            -
+              uuid: 92b0ce3fdf434fdbb6f8e202287eccee
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Stats - Unsubscribe Count Since Send'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.stats.unsubscribe_count_since_send[{#LIST_ID}]'
+              delay: '0'
+              description: 'The number of members who have unsubscribed since the last campaign was sent.'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.stats.unsubscribe_count_since_send
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+            -
+              uuid: 39e1b6ea96aa41d892bb698efb3f37b8
+              name: 'Mailchimp List {#LIST_NAME} ({#LIST_ID}) Web ID'
+              type: DEPENDENT
+              key: 'mailchimp.api.lists.web_id[{#LIST_ID}]'
+              delay: '0'
+              preprocessing:
+                -
+                  type: JSONPATH
+                  parameters:
+                    - $.web_id
+              master_item:
+                key: 'mailchimp.api.lists.data[{#LIST_ID}]'
+              tags:
+                -
+                  tag: Mailchimp
+                  value: Lists
+          graph_prototypes:
+            -
+              uuid: 0206bb807e524d09a0d5a57c857bd627
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Average Rates'
+              ymin_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: A54F10
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.avg_sub_rate[{#LIST_ID}]'
+                -
+                  sortorder: '2'
+                  color: FC6EA3
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.avg_unsub_rate[{#LIST_ID}]'
+            -
+              uuid: 12ab27fc70e34c1091eeb73b422775d1
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Campaign Count'
+              ymin_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.campaign_count[{#LIST_ID}]'
+            -
+              uuid: 4566d99be6fa40718590e14d1e6e349f
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Campaign Emails Sent'
+              ymin_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: 1A7C11
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.campaigns.emails_sent[{#LIST_ID}]'
+            -
+              uuid: 74be30b4164040f3a0e1cd70cbe0a7df
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Change Since Send'
+              ymin_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: A54F10
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.member_count_since_send[{#LIST_ID}]'
+                -
+                  sortorder: '2'
+                  color: FC6EA3
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.unsubscribe_count_since_send[{#LIST_ID}]'
+                -
+                  sortorder: '3'
+                  color: 6C59DC
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.cleaned_count_since_send[{#LIST_ID}]'
+            -
+              uuid: b9f733c849334de284cadcb127e7db9e
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Interaction Rates'
+              ymin_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: A54F10
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.click_rate[{#LIST_ID}]'
+                -
+                  sortorder: '2'
+                  color: FC6EA3
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.open_rate[{#LIST_ID}]'
+            -
+              uuid: 08cc51120cc348d7ab6dc6148efe8b10
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - List Rating'
+              yaxismax: '5'
+              ymin_type_1: FIXED
+              ymax_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: 2774A4
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.list_rating[{#LIST_ID}]'
+            -
+              uuid: fc731810bc49417ba00df77dd6d9afc3
+              name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Members Count'
+              ymin_type_1: FIXED
+              graph_items:
+                -
+                  sortorder: '1'
+                  color: F63100
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.member_count[{#LIST_ID}]'
+                -
+                  sortorder: '2'
+                  color: 2774A4
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.unsubscribe_count[{#LIST_ID}]'
+                -
+                  sortorder: '3'
+                  color: A54F10
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.cleaned_count[{#LIST_ID}]'
+                -
+                  sortorder: '4'
+                  color: A54F10
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.target_sub_rate[{#LIST_ID}]'
+                -
+                  sortorder: '5'
+                  color: FC6EA3
+                  item:
+                    host: 'MailChimp Provider Status'
+                    key: 'mailchimp.api.lists.stats.abuse-reports.count[{#LIST_ID}]'
+          master_item:
+            key: mailchimp.api.lists.data
+          preprocessing:
+            -
+              type: JSONPATH
+              parameters:
+                - $.lists
+            -
+              type: STR_REPLACE
+              parameters:
+                - id
+                - '{#LIST_ID}'
+            -
+              type: STR_REPLACE
+              parameters:
+                - name
+                - '{#LIST_NAME}'
+      tags:
+        -
+          tag: API
+          value: Mailchimp
+        -
+          tag: Application
+          value: API
+      macros:
+        -
+          macro: '{$MAILCHIMP_APIKEY}'
+          value: YOUR_MAILCHIMP_APIKEY
+          description: 'Mailchimp API Key'
+        -
+          macro: '{$MAILCHIMP_API_SERVER}'
+          value: us99.api.mailchimp.com
+          description: 'Mailchimp Server - Login to account and check URL'
+      dashboards:
+        -
+          uuid: 1e6186b9710b49019385be84e21d2f75
+          name: 'MailChimp Detail'
+          pages:
+            -
+              widgets:
+                -
+                  type: GRAPH_PROTOTYPE
+                  name: 'Campaign Counts'
+                  width: '22'
+                  height: '6'
+                  fields:
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Campaign Count'
+                        host: 'MailChimp Provider Status'
+                -
+                  type: GRAPH_PROTOTYPE
+                  name: 'Changes Since Send'
+                  'y': '12'
+                  width: '22'
+                  height: '6'
+                  fields:
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Change Since Send'
+                        host: 'MailChimp Provider Status'
+                -
+                  type: GRAPH_PROTOTYPE
+                  name: 'Members Detail'
+                  'y': '6'
+                  width: '22'
+                  height: '6'
+                  fields:
+                    -
+                      type: GRAPH_PROTOTYPE
+                      name: graphid
+                      value:
+                        name: 'Mailchimp List - {#LIST_NAME} ({#LIST_ID}) - Members Count'
+                        host: 'MailChimp Provider Status'
+        -
+          uuid: 698810b21a2d4b47b3fc98e2df5b47be
+          name: 'Mailchimp Information'
+          pages:
+            -
+              widgets:
+                -
+                  type: GRAPH_CLASSIC
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Mailchimp Domains Count'
+                        host: 'MailChimp Provider Status'
+                -
+                  type: GRAPH_CLASSIC
+                  x: '12'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Mailchimp Lists Count'
+                        host: 'MailChimp Provider Status'
+                -
+                  type: GRAPH_CLASSIC
+                  'y': '5'
+                  width: '12'
+                  height: '7'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Mailchimp Lists Campaigns Total'
+                        host: 'MailChimp Provider Status'
+                -
+                  type: GRAPH_CLASSIC
+                  x: '12'
+                  'y': '5'
+                  width: '12'
+                  height: '7'
+                  fields:
+                    -
+                      type: GRAPH
+                      name: graphid
+                      value:
+                        name: 'Mailchimp Lists Members Ununique Totals'
+                        host: 'MailChimp Provider Status'
+  graphs:
+    -
+      uuid: 072cd785ce4046b184b59e02a9203c00
+      name: 'Mailchimp Abuse Reports Count'
+      ymin_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.abuse-reports.count
+    -
+      uuid: ccb269aa278a402dad6fe240a27207c5
+      name: 'Mailchimp Domains Count'
+      ymin_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.domains.count
+    -
+      uuid: 06fc1fb5e0e542f8aab0bd9996e75057
+      name: 'Mailchimp Lists Campaigns Emails Sent Total'
+      ymin_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.stats.campaigns.emails_sent.total
+    -
+      uuid: 40a20f75c8c84c0bab0beb8921eddd9e
+      name: 'Mailchimp Lists Campaigns Total'
+      ymin_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.stats.campaign_count.total
+    -
+      uuid: 32f7e5faf0d64b3d986ebd6692a4600a
+      name: 'Mailchimp Lists Count'
+      ymin_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.count
+    -
+      uuid: 05fd0b1834b447259d3ca573ab7c6f35
+      name: 'Mailchimp Lists Members Ununique Totals'
+      ymin_type_1: FIXED
+      graph_items:
+        -
+          sortorder: '1'
+          color: 1A7C11
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.stats.member_count.total
+        -
+          sortorder: '2'
+          color: 2774A4
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.stats.unsubscribe_count.total
+        -
+          sortorder: '3'
+          color: A54F10
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.stats.cleaned_count.total
+        -
+          sortorder: '4'
+          color: FC6EA3
+          item:
+            host: 'MailChimp Provider Status'
+            key: mailchimp.api.lists.abuse-reports.count
